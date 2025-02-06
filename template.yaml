@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: devops-day-one
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON
+Parameters:
+  NbaApiKey:
+    Type: String
+    Description: The NBA API Key
+    NoEcho: true
+    MinLength: 1
+  Email:
+    Type: String
+    Description: The email address to send notifications to
+    MinLength: 1
+# Resources declares the AWS resources that you want to include in the stack
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+Resources:
+
+  NBAApiSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '/${AWS::StackName}/nba-api-key'
+      Description: "NBA API Key for game notifications"
+      SecretString: !Ref NbaApiKey
+      Tags:
+        - Key: Environment
+          Value: !Ref AWS::StackName
+
+  GameDayTopic:
+    Type: AWS::SNS::Topic
+  Subscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref GameDayTopic
+      Protocol: email
+      Endpoint: !Ref Email
+
+  GameDayNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: game_day_notification/
+      Handler: app.lambda_handler
+      Timeout: 30
+      Runtime: python3.13
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Ref GameDayTopic
+                - !Ref NBAApiSecret
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref GameDayTopic
+          NBA_API_SECRET_ARN: !Ref NBAApiSecret
+
+  GameDayNotificationSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      ScheduleExpression: 'cron(0 9-23/2,0-2/2 * * ? *)'
+      # ScheduleExpression: rate(2 minutes) // For testing you can trigger every 2 minutes
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn: !GetAtt GameDayNotificationFunction.Arn
+        RoleArn: !GetAtt GameDayNotificationServiceSchedulerRole.Arn
+
+  GameDayNotificationServiceSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: EventBridge Scheduler - IAM Role 
+      RoleName: game-day-notification-service-scheduler-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: game-day-notification-service-scheduler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt GameDayNotificationFunction.Arn
+
+Outputs:
+  GameDayTopicArn:
+    Description: The ARN of the SNS topic for game day notifications (SNS_TOPIC_ARN)
+    Value: !Ref GameDayTopic
+  NbaApiSecretName:
+    Description: The name of the secret for the NBA API key (NBA_API_SECRET_ARN)
+    Value: !Ref NBAApiSecret
+  GameDayNotificationFunction:
+    Description: The Lambda function for game day notifications
+    Value: !GetAtt GameDayNotificationFunction.Arn
+  GameDayNotificationSchedule:
+    Description: The EventBridge rule for scheduling game day notifications
+    Value: !Ref GameDayNotificationSchedule

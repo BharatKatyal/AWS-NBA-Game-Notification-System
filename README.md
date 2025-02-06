@@ -6,6 +6,31 @@ Serverless AWS application that sends NBA game notifications via email using Lam
 ![alt text](repo_assets/Architecture_Diagram.png)
 
 
+## Architecture
+- **Lambda Function**: Processes NBA game data (runs every 2 hours 9AM-2AM CT)
+- **EventBridge**: Schedules function execution
+- **SNS Topic**: Delivers email notifications
+- **Secrets Manager**: Stores NBA API key securely
+
+## Environment Variables
+- `SNS_TOPIC_ARN`: SNS topic for notifications
+- `NBA_API_SECRET_ARN`: Secret name in AWS Secrets Manager
+
+## Security Features
+- API key stored in Secrets Manager
+- IAM roles with least privilege
+- Limited Lambda permissions
+- NoEcho for sensitive parameters
+
+## AWS Resources Created
+- Lambda Function & IAM Role
+- SNS Topic & Subscription
+- Secrets Manager Secret
+- EventBridge Schedule
+- Required IAM Policies
+
+
+
 ## Project Structure
 ```
 ├── game_day_notification/          # Lambda function directory
@@ -81,32 +106,4 @@ Verify SNS Topic ARN format
 Check Secret name matches Secrets Manager
 Confirm local environment variables match deployed values
 
-
-## Architecture
-- **Lambda Function**: Processes NBA game data (runs every 2 hours 9AM-2AM CT)
-- **EventBridge**: Schedules function execution
-- **SNS Topic**: Delivers email notifications
-- **Secrets Manager**: Stores NBA API key securely
-
-## Environment Variables
-- `SNS_TOPIC_ARN`: SNS topic for notifications
-- `NBA_API_SECRET_ARN`: Secret name in AWS Secrets Manager
-
-## Security Features
-- API key stored in Secrets Manager
-- IAM roles with least privilege
-- Limited Lambda permissions
-- NoEcho for sensitive parameters
-
-## AWS Resources Created
-- Lambda Function & IAM Role
-- SNS Topic & Subscription
-- Secrets Manager Secret
-- EventBridge Schedule
-- Required IAM Policies
-
-
-## Example Notification
-![NBA Game Notification Email](repo_assets/SNS_Email_NBA.png)
-```
 

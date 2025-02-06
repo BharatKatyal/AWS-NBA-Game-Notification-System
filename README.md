@@ -49,10 +49,10 @@ sam deploy
 ```
 
 4. Confirm Verification email from AWS SES
-- Check your inbox and confirm the message to start reciving emails 
+- After deployment, AWS SNS will send a subscription confirmation email. 
+- Click the "Confirm subscription" link in the email
+- Email notifications will begin after confirmation
 ## Testing
-
-
 
 ### Adding Enviroment Variables locally 
 Edit the env.json with the appropriate arns for the SNS_TOPIC_ARN and NBA_API_SECRET_ARN
@@ -66,14 +66,20 @@ example
     }
   }
 ```
-
-
+### Example Email Notification
+Below is a sample of the email notification format:
 
 ![alt text](repo_assets/SNS_Email_NBA.png)
 
 ```bash
 sam local invoke -e events/event.json --env-vars env.json 
 ```
+
+### Troubleshooting
+Ensure AWS credentials are configured
+Verify SNS Topic ARN format
+Check Secret name matches Secrets Manager
+Confirm local environment variables match deployed values
 
 
 ## Architecture
@@ -84,7 +90,7 @@ sam local invoke -e events/event.json --env-vars env.json
 
 ## Environment Variables
 - `SNS_TOPIC_ARN`: SNS topic for notifications
-- `NBA_API_SECRET_NAME`: Secret name in AWS Secrets Manager
+- `NBA_API_SECRET_ARN`: Secret name in AWS Secrets Manager
 
 ## Security Features
 - API key stored in Secrets Manager

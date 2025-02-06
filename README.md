@@ -14,7 +14,7 @@ Serverless AWS application that sends NBA game notifications via email using Lam
 ├── events/                        # Sample events
 │   └── event.json                # Test event payload
 ├── template.yaml                  # SAM template
-├── env.json                  # SAM template
+├── env.json                    # Environment variables to invoke lambda locally
 └── README.md                      # This file
 ```
 

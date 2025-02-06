@@ -11,6 +11,8 @@ Serverless AWS application that sends NBA game notifications via email using Lam
 - **EventBridge**: Schedules function execution
 - **SNS Topic**: Delivers email notifications
 - **Secrets Manager**: Stores NBA API key securely
+- **CloudWatch Logs**: Monitors Lambda execution and storing logs
+
 
 ## Environment Variables
 - `SNS_TOPIC_ARN`: SNS topic for notifications

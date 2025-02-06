@@ -102,6 +102,13 @@ Below is a sample of the email notification format:
 sam local invoke -e events/event.json --env-vars env.json 
 ```
 
+
+### Clean up
+
+```
+sam delete
+```
+
 ### Troubleshooting
 Ensure AWS credentials are configured
 Verify SNS Topic ARN format

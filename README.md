@@ -3,6 +3,9 @@
 ## Project Overview
 Serverless AWS application that sends NBA game notifications via email using Lambda, EventBridge, and SNS. The application fetches game data from the NBA API and delivers real-time updates through email notifications.
 
+![alt text](repo_assets/Architecture.png)
+
+
 ## Project Structure
 ```
 ├── game_day_notification/          # Lambda function directory
